@@ -13,6 +13,6 @@ class BookController extends Controller
 
     public function show($title)
     {
-        return 'Results for the book: '.$title;
+        return 'Results for the book: ' . $title;
     }
 }
