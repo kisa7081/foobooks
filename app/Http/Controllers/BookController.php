@@ -13,6 +13,8 @@ class BookController extends Controller
 
     public function show($title)
     {
-        return 'Results for the book: ' . $title;
+        return view('books.show')->with([
+            'title'=> $title
+        ]);
     }
 }
