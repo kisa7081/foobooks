@@ -1,17 +1,16 @@
-<!doctype html>
-<html lang='en'>
-<head>
-    <title>{{ $title }}</title>
-    <meta charset='utf-8'>
-    <link href='/css/foobooks.css' type='text/css' rel='stylesheet'>
-</head>
-<body>
+@extends('layouts.master')
 
-<header>
-    <a href='/'><img src='/images/foobooks-logo@2x.png' id='logo' alt='Foobooks Logo'></a>
-</header>
+@section('title')
+    {{ $title }}
+@endsection
 
-<section>
+@section('head')
+    {{-- Page specific CSS includes should be defined here; this .css file does not exist yet, but we can create it --}}
+    <link href='/css/books/show.css' rel='stylesheet'>
+@endsection
+
+@section('content')
+
     @if(isset($title))
         <h1>{{ $title }}</h1>
 
@@ -23,11 +22,5 @@
             Book not found
         </p>
     @endif
-</section>
 
-<footer>
-    &copy; {{ date('Y') }}
-</footer>
-
-</body>
-</html>
+@endsection
