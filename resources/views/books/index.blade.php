@@ -6,8 +6,18 @@
 
 @section('content')
 
-    <h1>Your books</h1>
+    <h1>Recently Added Books</h1>
 
-    <p>All your base are belong to us</p>
+    <aside>
+        @foreach($newBooks as $book)
+            <p>{{ $book->title }}</p>
+        @endforeach
+    </aside>
+
+    <h1>Your Books</h1>
+
+    @foreach($books as $book)
+        <p>{{ $book->title }}</p>
+    @endforeach
 
 @endsection
