@@ -58,12 +58,6 @@ class BookController extends Controller
 
             # Decode the book JSON data into an array
             # Nothing fancy here; just a built in PHP method
-            if ($request->has('caseSensitive')) {
-
-            }
-            else {
-
-            }
 
             $searchResults;
             if ($request->has('caseSensitive')) {
