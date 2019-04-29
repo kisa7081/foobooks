@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-    {{ $title }}
+    {{ $book->title }}
 @endsection
 
 @section('head')
@@ -11,16 +11,17 @@
 
 @section('content')
 
-    @if(isset($title))
-        <h1>{{ $title }}</h1>
 
-        <p>
-            Details about this book will go here...
-        </p>
-    @else
-        <p>
-            Book not found
-        </p>
-    @endif
+    <h1>{{ $book->title }}</h1>
 
+    <p>
+        @include('books._book')
+    </p>
+
+    <a href='/books/delete/{{ $book->id }}'><i class="fas fa-delete">Edit</i>
+    <form method='POST' action='/books/delete/{{$book->id}}'>
+        {{ csrf_field() }}
+        @method('DELETE')
+        <input type='submit' value='Delete Book'>
+    </form>
 @endsection

@@ -8,16 +8,16 @@
 
     <h1>Recently Added Books</h1>
 
-    <aside>
+    <section>
         @foreach($newBooks as $book)
-            <p>{{ $book->title }}</p>
+            @include('books._book')
         @endforeach
-    </aside>
+    </section>
 
     <h1>Your Books</h1>
 
     @foreach($books as $book)
-        <p>{{ $book->title }}</p>
+        @include('books._book')
     @endforeach
 
 @endsection

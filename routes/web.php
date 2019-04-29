@@ -11,10 +11,18 @@ Route::get('/books', 'BookController@index');
 Route::get('/books/create', 'BookController@create');
 Route::post('/books', 'BookController@store');
 
-Route::get('/books/{title}', 'BookController@show');
+Route::get('/books/{id}', 'BookController@show');
 
 
 Route::any('/practice/{n?}', 'PracticeController@index');
+
+# Show the form to edit a specific book
+Route::get('/books/{id}/edit', 'BookController@edit');
+
+# Process the form to edit a specific book
+Route::put('/books/{id}', 'BookController@update');
+
+Route::delete('books/delete/{id}', 'BookController@delete');
 
 Route::get('/debug', function () {
 

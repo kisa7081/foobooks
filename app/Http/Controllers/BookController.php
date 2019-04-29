@@ -12,49 +12,27 @@ class BookController extends Controller
         $books = Book::orderBy('title')->get();
 
         $newBooks = $books->sortByDesc('vrerated_at')->take(3);
+
         return view('books.index')->with([
-        'books'=>$books,
-        'newBooks'=>$newBooks
-            ]);
+            'books' => $books,
+            'newBooks' => $newBooks
+        ]);
     }
 
-    public function show($title)
+    public function show($id)
     {
+        $book = Book::find($id);
+        if(!$book) {
+            return redirect('/books')->with(['alert' => 'The book you were looking for was not found.']);
+        }
         return view('books.show')->with([
-            'title'=> $title
+            'book'=> $book
         ]);
     }
 
     public function searchProcess(Request $request) {
 
-        # ======== Temporary code to explore $request ==========
 
-        # See all the properties and methods available in the $request object
-//        dump($request);
-//
-//        # See just the form data from the $request object
-//        dump($request->all());
-//
-//        # See just the form data for a specific input, in this case a text input
-//        dump($request->input('searchTerm'));
-//
-//        # See what the form data looks like for a checkbox
-//        dump($request->input('caseSensitive'));
-//
-//        # Form data can also be accessed via dynamic properties
-//        dump($request->searchTerm);
-//
-//        # Boolean to see if the request contains data for a particular field
-//        dump($request->has('searchTerm')); # Should be true
-//        dump($request->has('publishedYear')); # There's no publishedYear input, so this should be false
-//
-//        # You can get more information about a request than just the data of the form, for example...
-//        dump($request->path()); # "books/search-process"
-//        dump($request->is('books/search-process')); # True
-//        dump($request->is('search')); # False
-//        dump($request->fullUrl()); # e.g. http://foobooks.loc/books/search-process?searchTerm=abc
-//        dump($request->method()); # GET
-//        dump($request->isMethod('post')); # False
 
         # ======== End exploration of $request ==========
 
@@ -80,24 +58,37 @@ class BookController extends Controller
 
             # Decode the book JSON data into an array
             # Nothing fancy here; just a built in PHP method
-            $books = json_decode($booksRawData, true);
+            if ($request->has('caseSensitive')) {
+
+            }
+            else {
+
+            }
+
+            $searchResults;
+            if ($request->has('caseSensitive')) {
+                $searchResults = Book::where('title', 'like', '\'%'.$searchTerm.'%\'')->get();
+            }
+            else {
+                $searchResults = Book::whereRaw('lower(title) like \'%'.strtolower($searchTerm).'%\'')->get();
+            }
 
             # Loop through all the book data, looking for matches
             # This code was taken from v0 of foobooks we built earlier in the semester
-            foreach ($books as $title => $book) {
-                # Case sensitive boolean check for a match
-                if ($request->has('caseSensitive')) {
-                    $match = $title == $searchTerm;
-                    # Case insensitive boolean check for a match
-                } else {
-                    $match = strtolower($title) == strtolower($searchTerm);
-                }
-
-                # If it was a match, add it to our results
-                if ($match) {
-                    $searchResults[$title] = $book;
-                }
-            }
+//            foreach ($books as $title => $book) {
+//                # Case sensitive boolean check for a match
+//                if ($request->has('caseSensitive')) {
+//                    $match = $title == $searchTerm;
+//                    # Case insensitive boolean check for a match
+//                } else {
+//                    $match = strtolower($title) == strtolower($searchTerm);
+//                }
+//
+//                # If it was a match, add it to our results
+//                if ($match) {
+//                    $searchResults[$title] = $book;
+//                }
+//            }
         }
 
         # Redirect back to the search page w/ the searchTerm *and* searchResults (if any) stored in the session
@@ -143,13 +134,74 @@ class BookController extends Controller
             'purchase_url' => 'required|url'
         ]);
 
+        $book = new Book();
+
+        # Set the properties
+        # Note how each property corresponds to a field in the table
+        $book->title = $request->title;
+        $book->author = $request->author;
+        $book->published_year = $request->published_year;
+        $book->cover_url = $request->cover_url;
+        $book->purchase_url = $request->purchase_url;
+
+
         # Note: If validation fails, it will redirect the visitor back to the form page
         # and none of the code that follows will execute.
 
-        # Code will eventually go here to add the book to the database,
-        # but for now we'll just dump the form data to the page for proof of concept
-        //dump($request->all());
-        return redirect('/books/create')->withInput();
+        $book->save();
+        return redirect('/books/create')->with(['alert' => 'The book ' . $book->title . ' was added.']);;
+    }
+
+    public function edit($id)
+    {
+        $book = Book::find($id);
+        if(!$book) {
+            return redirect('/books')->with(['alert' => 'The book you were looking for was not found.']);
+        }
+        return view('books.edit')->with([
+            'book'=> $book
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        # Validate the request data
+        $request->validate([
+            'title' => 'required',
+            'author' => 'required',
+            'published_year' => 'required|digits:4',
+            'cover_url' => 'required|url',
+            'purchase_url' => 'required|url'
+        ]);
+
+        $book = Book::find($id);
+        if(!$book) {
+            return redirect('/books')->with(['alert' => 'The book you were looking for was not found.']);
+        }
+        # Set the properties
+        # Note how each property corresponds to a field in the table
+        $book->title = $request->title;
+        $book->author = $request->author;
+        $book->published_year = $request->published_year;
+        $book->cover_url = $request->cover_url;
+        $book->purchase_url = $request->purchase_url;
+
+
+        # Note: If validation fails, it will redirect the visitor back to the form page
+        # and none of the code that follows will execute.
+
+        $book->save();
+        return redirect('/books/'.$id.'/edit')->with(['alert' => 'The book ' . $book->title . ' was updated.']);
+    }
+
+    public function delete($id)
+    {
+        $book = Book::find($id);
+        if(!$book) {
+            return redirect('/books')->with(['alert' => 'The book you were looking for was not found.']);
+        }
+        $book->delete();
+        return redirect('/books')->with(['alert' => 'The book ' . $book->title . ' was deleted.']);
     }
 }
 
