@@ -18,7 +18,7 @@
         @include('books._book')
     </p>
 
-    <a href='/books/delete/{{ $book->id }}'><i class="fas fa-delete">Edit</i>
+    <a href='/books/{{ $book->id }}/edit'><i class="fas fa-delete">Edit</i>
     <form method='POST' action='/books/delete/{{$book->id}}'>
         {{ csrf_field() }}
         @method('DELETE')

@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-    Add a book
+    Edit a book
 @endsection
 
 @section('content')
