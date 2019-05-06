@@ -3,19 +3,69 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use IanLChapman\PigLatinTranslator\Parser;
 use App\Book;
+use App\Author;
+
 class PracticeController extends Controller
 {
-    public function practive9()
+    public function practice13()
     {
+        $book = Book::first();
 
+        dump($book->tags);
+        dump($book->tags());
+    }
+
+    public function practice12()
+    {
+        $books = Book::with('tags')->get();
+
+        foreach ($books as $book) {
+            dump($book->title);
+            foreach ($book->tags as $tag) {
+                dump($tag->name);
+            }
+        }
+    }
+
+    public function practice11()
+    {
+        $books= Book::all();
+
+        foreach($books as $book) {
+            dump($book->author->first_name.' '.$book->author->last_name.' wrote '.$book->title);
+        }
+    }
+
+
+    public function practice10()
+    {
+        $book = Book::first();
+
+        $author = $book->author;
+    }
+    public function practice9()
+    {
+        $author = Author::where('first_name', '=', 'J.K.')->first();
+
+        $book = new Book();
+        $book->title = "Fantastic Beasts and Where to Find Them";
+        $book->published_year = 2017;
+        $book->cover_url = 'http://prodimage.images-bn.com/pimages/9781338132311_p0_v2_s192x300.jpg';
+        $book->purchase_url = 'http://www.barnesandnoble.com/w/fantastic-beasts-and-where-to-find-them-j-k-rowling/1004478855';
+        $book->author()->associate($author); # <--- Associate the author with this book
+        $book->save();
+        dump($book->toArray());
     }
 
 
     public function practice8()
     {
+        $book = Book::where('id', '=', '777')->get();
+        $book->delete();
+        dump('Book deleted.');
         # First get a book to delete
-        $book = Book::where('author', '=', 'F. Scott Fitzgerald')->first();
-
+        $book = Book::where('id', '=', '444')->first();
+        $book->delete();
         if (!$book) {
             dump('Did not delete- Book not found.');
         } else {

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use App\Book;
+use App\Author;
 
 class BooksTableSeeder extends Seeder
 {
@@ -26,12 +27,22 @@ class BooksTableSeeder extends Seeder
         $count = count($books);
 
         foreach ($books as $key => $bookData) {
+
+            $name = explode(' ', $bookData[1]);
+            $lastName = array_pop($name);
+
+            # Find that author in the authors table
+            $author_id = Author::where('last_name', '=', $lastName)->pluck('id')->first();
+
+
+
             $book = new Book();
 
             $book->created_at = Carbon\Carbon::now()->subDays($count)->toDateTimeString();
             $book->updated_at = Carbon\Carbon::now()->subDays($count)->toDateTimeString();
             $book->title = $bookData[0];
-            $book->author = $bookData[1];
+            # $book->author' = $bookData[1]; # Remove the old way we stored the author
+            $book->author_id = $author_id; # Add the new way we store the author
             $book->published_year = $bookData[2];
             $book->cover_url = $bookData[3];
             $book->purchase_url = $bookData[4];

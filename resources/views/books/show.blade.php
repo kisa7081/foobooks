@@ -19,7 +19,7 @@
     </p>
 
     <a href='/books/{{ $book->id }}/edit'><i class="fas fa-delete">Edit</i>
-    <form method='POST' action='/books/delete/{{$book->id}}'>
+    <form method='POST' action='/books/{{$book->id}}/delete'>
         {{ csrf_field() }}
         @method('DELETE')
         <input type='submit' value='Delete Book'>

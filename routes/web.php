@@ -22,7 +22,7 @@ Route::get('/books/{id}/edit', 'BookController@edit');
 # Process the form to edit a specific book
 Route::put('/books/{id}', 'BookController@update');
 
-Route::delete('books/delete/{id}', 'BookController@delete');
+Route::delete('books/{id}/delete', 'BookController@delete');
 
 Route::get('/debug', function () {
 

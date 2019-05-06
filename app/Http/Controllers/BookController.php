@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Book;
-
+use App\Author;
+use App\Tag;
 class BookController extends Controller
 {
     public function index()
     {
-        $books = Book::orderBy('title')->get();
+        $books = Book::with('author')->orderBy('title')->get();
 
         $newBooks = $books->sortByDesc('vrerated_at')->take(3);
 
@@ -109,7 +110,15 @@ class BookController extends Controller
      */
     public function create(Request $request)
     {
-        return view('books.create');
+        $authors = Author::orderBy('last_name')->select(['first_name', 'last_name', 'id'])->get();
+
+        $tags = Tag::getForCheckboxes();
+
+        return view('books.create')->with([
+            'authors' => $authors,
+            'tags'=>$tags
+        ]
+        );
     }
 
 
@@ -122,7 +131,7 @@ class BookController extends Controller
         # Validate the request data
         $request->validate([
             'title' => 'required',
-            'author' => 'required',
+            'author_id' => 'required',
             'published_year' => 'required|digits:4',
             'cover_url' => 'required|url',
             'purchase_url' => 'required|url'
@@ -133,7 +142,9 @@ class BookController extends Controller
         # Set the properties
         # Note how each property corresponds to a field in the table
         $book->title = $request->title;
-        $book->author = $request->author;
+        # $author = Author::find($request->author_id);
+        # $book->author()->associate($author);
+        $book->author_id = $request->author_id;
         $book->published_year = $request->published_year;
         $book->cover_url = $request->cover_url;
         $book->purchase_url = $request->purchase_url;
@@ -152,8 +163,14 @@ class BookController extends Controller
         if(!$book) {
             return redirect('/books')->with(['alert' => 'The book you were looking for was not found.']);
         }
+        $authors = Author::orderBy('last_name')->select(['first_name', 'last_name', 'id'])->get();
+        $tags = Tag::getForCheckboxes();
+        $bookTags = $book->tags()->pluck('tag_id')->toArray();
         return view('books.edit')->with([
-            'book'=> $book
+            'book'=> $book,
+            'authors'=>$authors,
+            'tags'=>$tags,
+            'bookTags'=>$bookTags
         ]);
     }
 
@@ -162,7 +179,7 @@ class BookController extends Controller
         # Validate the request data
         $request->validate([
             'title' => 'required',
-            'author' => 'required',
+            'author_id' => 'required',
             'published_year' => 'required|digits:4',
             'cover_url' => 'required|url',
             'purchase_url' => 'required|url'
@@ -175,11 +192,11 @@ class BookController extends Controller
         # Set the properties
         # Note how each property corresponds to a field in the table
         $book->title = $request->title;
-        $book->author = $request->author;
+        $book->author_id = $request->author_id;
         $book->published_year = $request->published_year;
         $book->cover_url = $request->cover_url;
         $book->purchase_url = $request->purchase_url;
-
+        $book->tags()->sync($request->tags);
 
         # Note: If validation fails, it will redirect the visitor back to the form page
         # and none of the code that follows will execute.
@@ -191,6 +208,7 @@ class BookController extends Controller
     public function delete($id)
     {
         $book = Book::find($id);
+        $book->tags()->detach();
         if(!$book) {
             return redirect('/books')->with(['alert' => 'The book you were looking for was not found.']);
         }
